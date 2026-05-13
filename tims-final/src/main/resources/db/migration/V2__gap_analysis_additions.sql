@@ -1,0 +1,105 @@
+---- V2__gap_analysis_additions.sql
+---- All changes are ADDITIVE only. Existing schema is untouched.
+--
+---- AUDIT EVENTS TABLE (AT-091/AT-092)
+--CREATE TABLE IF NOT EXISTS audit_events (
+--    id            BIGINT        NOT NULL AUTO_INCREMENT,
+--    entity_type   VARCHAR(40)   NOT NULL,
+--    entity_id     VARCHAR(40)   NOT NULL,
+--    action        VARCHAR(20)   NOT NULL,
+--    before_state  TEXT,
+--    after_state   TEXT,
+--    user_id       SMALLINT      NOT NULL,
+--    user_email    VARCHAR(120)  NOT NULL,
+--    reason        VARCHAR(500),
+--    occurred_at   DATETIME(3)   NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+--    PRIMARY KEY (id),
+--    INDEX idx_audit_entity (entity_type, entity_id),
+--    INDEX idx_audit_user   (user_id),
+--    INDEX idx_audit_ts     (occurred_at)
+--) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+--
+---- RAW FILE STORAGE (AT-021)
+--CREATE TABLE IF NOT EXISTS raw_files (
+--    id                 INT          NOT NULL AUTO_INCREMENT,
+--    job_id             INT          NOT NULL,
+--    original_filename  VARCHAR(255) NOT NULL,
+--    storage_path       VARCHAR(500) NOT NULL,
+--    sha256_hex         CHAR(64)     NOT NULL,
+--    file_size_bytes    BIGINT,
+--    content_type       VARCHAR(80),
+--    uploaded_at        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--    PRIMARY KEY (id),
+--    UNIQUE KEY uk_raw_job    (job_id),
+--    UNIQUE KEY uk_raw_sha256 (sha256_hex),
+--    CONSTRAINT fk_raw_job FOREIGN KEY (job_id) REFERENCES ingestion_jobs (id)
+--) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+--
+---- CORROSION OVERRIDES (AT-043)
+--CREATE TABLE IF NOT EXISTS corrosion_overrides (
+--    id                    INT          NOT NULL AUTO_INCREMENT,
+--    tank_id               SMALLINT     NOT NULL,
+--    default_allowance_mm  DECIMAL(6,3) NOT NULL,
+--    override_allowance_mm DECIMAL(6,3) NOT NULL,
+--    reason                VARCHAR(500) NOT NULL,
+--    overridden_by         SMALLINT     NOT NULL,
+--    overridden_at         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--    is_active             TINYINT(1)   NOT NULL DEFAULT 1,
+--    PRIMARY KEY (id),
+--    INDEX idx_co_tank (tank_id),
+--    CONSTRAINT fk_co_tank FOREIGN KEY (tank_id) REFERENCES tanks (id),
+--    CONSTRAINT fk_co_user FOREIGN KEY (overridden_by) REFERENCES users (id)
+--) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+--
+---- INSPECTION ALERTS (AT-032)
+--CREATE TABLE IF NOT EXISTS inspection_alerts (
+--    id              INT          NOT NULL AUTO_INCREMENT,
+--    tank_id         SMALLINT     NOT NULL,
+--    inspection_id   INT,
+--    alert_type      VARCHAR(30)  NOT NULL,
+--    message         VARCHAR(200) NOT NULL,
+--    proposed_date   DATE,
+--    assigned_to     SMALLINT     NOT NULL,
+--    is_read         TINYINT(1)   NOT NULL DEFAULT 0,
+--    created_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--    acknowledged_at DATETIME,
+--    PRIMARY KEY (id),
+--    INDEX idx_ia_user_unread (assigned_to, is_read),
+--    CONSTRAINT fk_ia_tank FOREIGN KEY (tank_id) REFERENCES tanks (id),
+--    CONSTRAINT fk_ia_insp FOREIGN KEY (inspection_id) REFERENCES inspections (id),
+--    CONSTRAINT fk_ia_user FOREIGN KEY (assigned_to) REFERENCES users (id)
+--) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+--
+---- INSPECTIONS: add APPROVED/REOPENED state columns (AT-091/AT-092)
+--ALTER TABLE inspections
+--    MODIFY COLUMN status ENUM('PLANNED','IN_PROGRESS','COMPLETED','APPROVED','REOPENED','CANCELLED')
+--    NOT NULL DEFAULT 'PLANNED';
+--
+--ALTER TABLE inspections
+--    ADD COLUMN IF NOT EXISTS version            INT          NOT NULL DEFAULT 0,
+--    ADD COLUMN IF NOT EXISTS approved_by        SMALLINT     NULL,
+--    ADD COLUMN IF NOT EXISTS approved_at        DATETIME     NULL,
+--    ADD COLUMN IF NOT EXISTS reopen_reason      VARCHAR(500) NULL,
+--    ADD COLUMN IF NOT EXISTS reopen_count       INT          NOT NULL DEFAULT 0,
+--    ADD COLUMN IF NOT EXISTS reopened_by_email  VARCHAR(120) NULL,
+--    ADD COLUMN IF NOT EXISTS reopened_at        DATETIME     NULL;
+--
+---- TANKS: add ACTION_REQUIRED compliance status (AT-042)
+--ALTER TABLE tanks
+--    MODIFY COLUMN compliance_status
+--    ENUM('COMPLIANT','ACTION_REQUIRED','OVERDUE') NOT NULL DEFAULT 'COMPLIANT';
+--
+---- PERFORMANCE INDEXES (AT-071 heatmap <=1.5s)
+--ALTER TABLE ut_readings
+--    ADD INDEX IF NOT EXISTS idx_ut_tank_job   (tank_id, job_id),
+--    ADD INDEX IF NOT EXISTS idx_ut_job_below  (job_id, is_below_retirement);
+--
+--ALTER TABLE mfl_readings
+--    ADD INDEX IF NOT EXISTS idx_mfl_tank_job  (tank_id, job_id);
+--
+--ALTER TABLE defects
+--    ADD INDEX IF NOT EXISTS idx_def_tank_status (tank_id, status),
+--    ADD INDEX IF NOT EXISTS idx_def_job         (linked_job_id);
+--
+--ALTER TABLE ingestion_jobs
+--    ADD INDEX IF NOT EXISTS idx_ij_tank_status_date (tank_id, status, upload_date);

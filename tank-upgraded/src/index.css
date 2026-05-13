@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  body {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0; padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: #f1f5f9; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+}
+
+@layer components {
+  .tims-card { @apply bg-white border border-slate-200 rounded-lg shadow-sm; }
+  .tims-badge { @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold; }
+  .badge-high { @apply tims-badge bg-red-100 text-red-700; }
+  .badge-medium { @apply tims-badge bg-amber-100 text-amber-700; }
+  .badge-low { @apply tims-badge bg-green-100 text-green-700; }
+  .badge-open { @apply tims-badge bg-red-50 text-red-600 border border-red-200; }
+  .badge-planned { @apply tims-badge bg-blue-100 text-blue-700; }
+  .badge-inprogress { @apply tims-badge bg-purple-100 text-purple-700; }
+  .badge-complete { @apply tims-badge bg-green-100 text-green-700; }
+  .badge-overdue { @apply tims-badge bg-red-100 text-red-700; }
+  .btn-primary { @apply inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded hover:bg-blue-700 transition-colors; }
+  .btn-secondary { @apply inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded hover:bg-slate-50 transition-colors; }
+  .btn-success { @apply inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded hover:bg-emerald-700 transition-colors; }
+  .btn-danger-outline { @apply inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded hover:bg-red-700 transition-colors; }
+  .field-label { @apply text-xs text-slate-400 uppercase tracking-wider font-medium; }
+  .field-value { @apply text-sm text-slate-800 font-medium; }
+  .tims-table th { @apply text-xs text-slate-500 font-semibold uppercase tracking-wider bg-slate-50 px-3 py-2 border-b border-slate-200 text-left whitespace-nowrap; }
+  .tims-table td { @apply text-sm text-slate-700 px-3 py-2.5 border-b border-slate-100; }
+  .sidebar-link { @apply flex items-center gap-3 px-3 py-2 rounded text-sm text-slate-300 hover:text-white hover:bg-slate-700/60 transition-colors cursor-pointer; }
+  .sidebar-link-active { @apply flex items-center gap-3 px-3 py-2 rounded text-sm text-white bg-blue-600 font-medium cursor-pointer; }
+}
+
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+.animate-page { animation: fadeIn 0.3s ease-out; }
