@@ -1,0 +1,56 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.backup
+release.properties
+.flattened-pom.xml
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# IntelliJ IDEA
+out/
+*.class
+
+# Compiled class files
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+
+# Log files
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+*.h2.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+build/
+.gradle/
+
+# Dependencies
+.m2/
